@@ -43,9 +43,7 @@ restart () {
 start () {
     ORS_UID=${UID} ORS_GID=${GID} "${DOCKER_COMPOSE[@]}" up -d
 
-    if [[ "$1" != "--dont-print" ]]; then
-        printf "\nA continuación verifique las URLs desde: http://localhost:4040 \n\n"
-    fi
+    printf "\nA continuación verifique las URLs desde: http://localhost:4040 \n\n"
 }
 
 # Stop the containers
@@ -59,16 +57,79 @@ update-assets() {
        --output './argentina-latest.osm.pbf'
 }
 
+rebuild() {
+  BUILD_GRAPHS=True ORS_UID=${UID} ORS_GID=${GID} "${DOCKER_COMPOSE[@]}" up ors-app
+}
+
 # Initialise the Docker environment and the application
 init () {
 
-    # El script init SOLO se ejecuta durante la ejecución de esta función
-
-    env \
-        && update-assets \
-        && down -v \
-
-    start --dont-print
-
-    printf "\nA continuación verifique las URLs desde: http://localhost:4040 \n\n"
+    env && update
 }
+
+update() {
+
+  printf "\n Esto puede tardar mucho tiempo, varias horas \n\n"
+
+  down -v \
+    && update-assets \
+    && rebuild \
+    && down -v \
+    && start
+}
+
+#######################################
+# MENU
+#######################################
+
+case "$1" in
+
+    destroy)
+        destroy
+        ;;
+    down)
+        down "${@:2}"
+        ;;
+    init)
+        init
+        ;;
+    logs)
+        logs "${@:2}"
+        ;;
+    restart)
+        restart
+        ;;
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    update)
+        update
+        ;;
+    state)
+        state
+        ;;
+    *)
+        cat << EOF
+Servidor para gis-argentina
+Uso:
+    gis <comando> [opciones] [argumentos]
+Comandos disponibles:
+    init ...................................... Inicializar el ambiente de Docker y la aplicación(tarda un par de horas)
+    start ..................................... Iniciar los contenedores(tarda unos minutos, 5 o 6)
+    stop ...................................... Detener los contenedores
+    restart ................................... Reiniciar los contenedores
+    update .................................... Actualizar el ambiente de Docker(tarda un par de horas)
+    state ..................................... Muestra el estado actual, ejecutando o no
+    down [-v] ................................. Detener y destruir los contenedores
+                                                    Opciones:
+                                                        -v .................... También destruir los volúmenes
+    destroy ................................... Remover todo el ambiente de docker
+    logs [container] .......................... Mostrar y seguir los logs de todos los contenedores o del especificado
+EOF
+        exit
+        ;;
+esac
+
