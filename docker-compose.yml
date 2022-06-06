@@ -1,5 +1,16 @@
 version: '2.4'
 services:
+  ngrok:
+    image: wernight/ngrok:latest
+    ports:
+      - "4040:4040"
+    environment:
+      NGROK_PROTOCOL: http
+      NGROK_PORT: ors-app:8080
+      NGROK_AUTH: ${NGROK_AUTH}
+    depends_on:
+      ors-app:
+        condition: service_healthy
   ors-app:
     container_name: ors-app
     ports:
