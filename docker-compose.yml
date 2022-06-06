@@ -14,6 +14,11 @@ services:
       - ./logs/tomcat:/usr/local/tomcat/logs
       - ./conf:/ors-conf
       - ./your_osm.pbf:/ors-core/data/osm_file.pbf
+    healthcheck:
+      test: bash -c "curl --fail http://localhost:8080/ors/v2/health | jq -r .status | grep ^ready$$ || exit 1"
+      interval: 2m
+      timeout: 10s
+      retries: 5
     environment:
       - BUILD_GRAPHS=True  # Forces the container to rebuild the graphs, e.g. when PBF is changed
       - "JAVA_OPTS=-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseG1GC -XX:+ScavengeBeforeFullGC -XX:ParallelGCThreads=4 -Xms1g -Xmx2g"
