@@ -52,8 +52,9 @@ stop () {
 }
 
 update-assets() {
-  curl --request GET -sL \
-       --url 'https://download.geofabrik.de/south-america/argentina-latest.osm.pbf'\
+
+  printf "\n Descargando assets \n\n"
+  curl --url 'https://download.geofabrik.de/south-america/argentina-latest.osm.pbf'\
        --output './argentina-latest.osm.pbf'
 }
 
@@ -71,11 +72,9 @@ update() {
 
   printf "\n Esto puede tardar mucho tiempo, varias horas \n\n"
 
-  down -v \
-    && update-assets \
+    update-assets \
     && rebuild \
-    && down -v \
-    && start
+    && restart
 }
 
 #######################################

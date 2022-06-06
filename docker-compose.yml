@@ -24,7 +24,7 @@ services:
       - ./logs/ors:/var/log/ors
       - ./logs/tomcat:/usr/local/tomcat/logs
       - ./conf:/ors-conf
-      - ./argentina-latest.pbf:/ors-core/data/osm_file.pbf
+      - ./argentina-latest.osm.pbf:/ors-core/data/osm_file.pbf
     healthcheck:
       # Trata de pingear la url de health cada 2 minutos
       # jq parsea el resultado como json y obtiene el campo solicitado, el flag "-r" remueve las comillas del resultado
